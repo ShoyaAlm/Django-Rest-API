@@ -6,7 +6,9 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 
-from .permissions import IsStaffEditorPermission
+# from api.permissions import IsStaffEditorPermission
+
+from api.mixins import StaffEditorPermissionMixin
 
 from .models import Product
 from .serializers import ProductSerializer
@@ -15,18 +17,19 @@ from .serializers import ProductSerializer
 from api.authentication import TokenAuthentication
 
 
-class ProductListCreateAPIView(generics.ListCreateAPIView):
+class ProductListCreateAPIView(
+    StaffEditorPermissionMixin,
+    generics.ListCreateAPIView
+    ):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication,
-        TokenAuthentication,
+    # authentication_classes = [
+    #     authentication.SessionAuthentication,
+    #     TokenAuthentication]
 
-    ]
-    permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
+    # permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
 
     def perform_create(self, serializer):
-        
         title = serializer.validated_data.get('title')
         content = serializer.validated_data.get('content')
         if content is None:
@@ -53,7 +56,7 @@ class ProductMixinView(
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
-
+    # permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
 
     def get(self, request, *args, **kwargs):
         print(args, kwargs)
@@ -109,9 +112,13 @@ def product_alt_view(request, pk=None, *args, **kwargs):
 
 
 
-class ProductDetailAPIView(generics.RetrieveAPIView):
+class ProductDetailAPIView(
+    StaffEditorPermissionMixin,
+    generics.RetrieveAPIView
+    ):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    # permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
 
 ###########<<<<<<&&&&&&&$$$$$$$@@@@>>>>???????????
 ###########<<<<<<&&&&&&&$$$$$$$@@@@>>>>???????????
@@ -122,10 +129,14 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
 
 
 
-class ProductUpdataAPIView(generics.UpdateAPIView):
+class ProductUpdataAPIView(
+    StaffEditorPermissionMixin,
+    generics.UpdateAPIView
+    ):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
+    # permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
 
     def perform_update(self, serializer):
         instance = serializer.save()
@@ -140,10 +151,14 @@ class ProductUpdataAPIView(generics.UpdateAPIView):
 ###########<<<<<<&&&&&&&$$$$$$$@@@@>>>>???????????
 
 
-class ProductDestroyAPIView(generics.DestroyAPIView):
+class ProductDestroyAPIView(
+    StaffEditorPermissionMixin,
+    generics.DestroyAPIView
+    ):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
+    # permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
